@@ -1,5 +1,6 @@
+//requiring , we NEED this
 require('dotenv').config();
-
+//requiring here as well, we NEED this
 const Sequelize = require('sequelize');
 
 const sequelize = process.env.JAWSDB_URL

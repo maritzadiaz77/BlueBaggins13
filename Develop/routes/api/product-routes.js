@@ -4,15 +4,52 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
+  //ask tutor if these sections looks right 
+  try {
+    const allProducts = await Product.findAll({
+      attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
+      include: [
+        {
+          model: Category,
+          attributes: ['category_name']
+        },
+        {
+          model: Tag,
+          attributes: ['tag_name']
+        }
+      ],
+    });
+    res.status(200).json(allProducts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
 // get one product
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  try {
+    const oneProduct = await Product.findByPk(req.params.id, {
+      attributes: ['id', 'product_name', 'price', 'stock', 'category_id'],
+      include: [
+        {
+          model: Category,
+          attributes: ['category_name']
+        },
+        {
+          model: Tag,
+          attributes: ['tag_name']
+        }
+      ],
+    });
+    res.status(200).json(oneProduct);
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
 // create new product
@@ -62,6 +99,7 @@ router.put('/:id', (req, res) => {
           where: { product_id: req.params.id }
         }).then((productTags) => {
           // create filtered list of new tag_ids
+          //this code was already included...
           const productTagIds = productTags.map(({ tag_id }) => tag_id);
           const newProductTags = req.body.tagIds
             .filter((tag_id) => !productTagIds.includes(tag_id))
@@ -92,8 +130,25 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
+//not too sure if this section is correct i need to ask help on this part....
+router.delete('/:id', async (req, res) => {
   // delete one product by its `id` value
+  try {
+    const productData = await Product.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+    if (!productData) {
+      res.status(404).json({ message: 'huuh' })
+      return;
+    }
+    res.status(200).json(productData);
+  }catch(error){
+    res.status(500).json(error);   
+  }
+
+
 });
 
 module.exports = router;
